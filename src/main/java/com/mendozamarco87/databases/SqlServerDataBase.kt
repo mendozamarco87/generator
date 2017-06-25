@@ -10,10 +10,10 @@ import java.sql.DriverManager
  */
 class SqlServerDataBase: IDataBase {
 
-    val SERVER = "DESKTOP-LP4SLIS\\MENDOZA"
-    val USER = "sa"
-    val PASSWORD = "segovia010"
-    val DATABASE = "maltin"
+    val SERVER = ""
+    val USER = ""
+    val PASSWORD = ""
+    val DATABASE = ""
 
     fun getConnection(): Connection {
         DriverManager.registerDriver(SQLServerDriver())
