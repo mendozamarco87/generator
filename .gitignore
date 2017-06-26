@@ -1,3 +1,4 @@
-/build
-*.iml
-/.idea
+build/
+.idea/
+generator.properties
+.gradle/
