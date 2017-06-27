@@ -8,8 +8,8 @@ import java.util.*
 /**
  * Created by marco.mendoza on 26/06/2017.
  */
-class SqLiteDataBase: IDataBase {
-    val DB_URL = "D:/marco.mendoza/downloads/bdPuntoAtencion.sqlite"
+class SqLiteDataBase(path: String): IDataBase {
+    private val DB_URL = path
 
     fun getConnection(): Connection {
         Class.forName("org.sqlite.JDBC")

@@ -24,3 +24,7 @@ interface IColumn {
     val isNull: Boolean
     val primaryKey: Boolean
 }
+
+interface IProgramingLan {
+    fun createScript(table: ITable):String
+}

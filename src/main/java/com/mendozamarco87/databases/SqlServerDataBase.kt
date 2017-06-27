@@ -9,12 +9,12 @@ import java.util.*
 /**
  * Created by mendoza on 25/06/2017.
  */
-class SqlServerDataBase: IDataBase {
+class SqlServerDataBase(server: String, user: String, password: String, database: String): IDataBase {
 
-    val SERVER = ""
-    val USER = ""
-    val PASSWORD = ""
-    val DATABASE = ""
+    private val SERVER = server
+    private val USER = user
+    private val PASSWORD = password
+    private val DATABASE = database
 
     fun getConnection(): Connection {
         DriverManager.registerDriver(SQLServerDriver())
