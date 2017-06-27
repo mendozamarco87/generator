@@ -1,0 +1,6 @@
+{
+  "nvarchar": "String",
+  "text": "String",
+  "integer": "Integer",
+  "real": "Double"
+}

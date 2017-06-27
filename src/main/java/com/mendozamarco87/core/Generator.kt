@@ -11,6 +11,7 @@ import java.nio.file.StandardOpenOption
 class Generator(val path: String) {
     var programingLan: IProgramingLan? = null
     var database: IDataBase? = null
+    var databaseToProgramingLan: IDatabaseToProgramingLan? = null
 
     fun from(iDataBase: IDataBase): Generator {
         this.database = iDataBase
@@ -22,10 +23,12 @@ class Generator(val path: String) {
         return this
     }
 
-    fun generate() {
-        this.database ?: throw NullPointerException("IDatabase can not be null...")
-        this.programingLan ?: throw NullPointerException("IProgramingLan can not be null...")
+    fun with(databaseToProgramingLan: IDatabaseToProgramingLan): Generator {
+        this.databaseToProgramingLan = databaseToProgramingLan
+        return this
+    }
 
+    fun generate() {
         val path = Paths.get(this.path)
         if (!Files.exists(path))
             Files.createDirectories(path)

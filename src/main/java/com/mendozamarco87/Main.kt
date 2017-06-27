@@ -10,10 +10,11 @@ import com.mendozamarco87.planguages.Java
 
 
 fun main(args: Array<String>) {
-    val pathDataBase = ""
-    val pathGenerateFiles = ""
-    val javaPackage = ""
+    val pathDataBase = "D:/marco.mendoza/generados/PuntosAtencion.sqlite"
+    val pathGenerateFiles = "D:/marco.mendoza/generados/com/mendozamarco87/test"
+    val javaPackage = "com.mendozamarco87.test"
 
+    val pathJsonSqliteToJava = ""
     val generator = Generator(pathGenerateFiles)
     generator.apply {
         from(SqLiteDataBase(pathDataBase))

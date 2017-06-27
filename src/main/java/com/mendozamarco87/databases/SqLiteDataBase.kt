@@ -4,11 +4,12 @@ import com.mendozamarco87.core.*
 import java.sql.Connection
 import java.sql.DriverManager
 import java.util.*
+import java.util.regex.Pattern
 
 /**
  * Created by marco.mendoza on 26/06/2017.
  */
-class SqLiteDataBase(path: String): IDataBase {
+class SqLiteDataBase(path: String) : IDataBase {
     private val DB_URL = path
 
     fun getConnection(): Connection {
@@ -41,8 +42,8 @@ class SqLiteDataBase(path: String): IDataBase {
         while (res.next()) {
             var column = Column(
                     name = res.getString("name"),
-                    type = res.getString("type"),
-                    length = -1,
+                    type = getType(res.getString("type")),
+                    length = getLength(res.getString("type")),
                     precision = -1,
                     isNull = res.getBoolean("notnull"),
                     primaryKey = res.getBoolean("pk")
@@ -50,5 +51,14 @@ class SqLiteDataBase(path: String): IDataBase {
             columns.add(column)
         }
         return columns
+    }
+
+    private fun getLength(text: String): Int {
+        val m = Pattern.compile("\\(([^)]+)\\)").matcher(text)
+        return if (m.find()) m.group(1).toInt() else -1
+    }
+
+    private fun getType(text: String) : String {
+        return text.substringBefore("(")
     }
 }

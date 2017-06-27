@@ -28,3 +28,7 @@ interface IColumn {
 interface IProgramingLan {
     fun createScript(table: ITable):String
 }
+
+interface IDatabaseToProgramingLan {
+    fun get(typeDb: String): String
+}
