@@ -23,6 +23,7 @@ interface IColumn {
     val precision: Int
     val isNull: Boolean
     val primaryKey: Boolean
+    val foreignKey: String
 }
 
 interface IProgramingLan {

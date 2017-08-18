@@ -46,7 +46,8 @@ class SqLiteDataBase(path: String) : IDataBase {
                     length = getLength(res.getString("type")),
                     precision = -1,
                     isNull = res.getBoolean("notnull"),
-                    primaryKey = res.getBoolean("pk")
+                    primaryKey = res.getBoolean("pk"),
+                    foreignKey = ""
             )
             columns.add(column)
         }

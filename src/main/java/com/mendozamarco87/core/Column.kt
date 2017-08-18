@@ -9,6 +9,7 @@ data class Column(
         override var length: Int,
         override var precision: Int,
         override var isNull: Boolean,
-        override var primaryKey: Boolean) : IColumn {
+        override var primaryKey: Boolean,
+        override var foreignKey: String) : IColumn {
 
 }

@@ -44,34 +44,34 @@ class SqlServerDataBase(server: String, user: String, password: String, database
         val conn = getConnection()
         val query = conn.createStatement()
         val res = query.executeQuery(
-                """SELECT
-                        c.name 'Column Name',
-                        t.Name 'Data type',
-                        c.max_length 'Max Length',
-                        c.precision ,
-                        c.scale ,
-                        c.is_nullable,
-                        ISNULL(i.is_primary_key, 0) 'Primary Key'
-                    FROM
-                        sys.columns c
-                    INNER JOIN
-                        sys.types t ON c.user_type_id = t.user_type_id
-                    LEFT OUTER JOIN
-                        sys.index_columns ic ON ic.object_id = c.object_id AND ic.column_id = c.column_id
-                    LEFT OUTER JOIN
-                        sys.indexes i ON ic.object_id = i.object_id AND ic.index_id = i.index_id
-                    WHERE
-                        c.object_id = OBJECT_ID('$tableName')
-                    """)
+                """select
+						c.COLUMN_NAME 'Column Name',
+                        c.DATA_TYPE 'Data type',
+                        c.CHARACTER_MAXIMUM_LENGTH 'Max Length',
+                        c.NUMERIC_PRECISION 'precision',
+                        c.NUMERIC_SCALE 'scale' ,
+                        c.IS_NULLABLE 'is_nullable',
+                        (CHARINDEX('PK',U.CONSTRAINT_NAME))  as 'primary Key',
+						t.name  as 'foreign Key'
+
+                    from [$DATABASE].INFORMATION_SCHEMA.Columns C
+                    LEFT OUTER JOIN [$DATABASE].INFORMATION_SCHEMA.KEY_COLUMN_USAGE U
+                    ON C.COLUMN_NAME = U.COLUMN_NAME and c.TABLE_NAME = u.TABLE_NAME
+					LEFT OUTER JOIN [$DATABASE].sys.foreign_keys k on k.name = u.CONSTRAINT_NAME
+                    LEFT OUTER JOIN [$DATABASE].sys.tables t on t.object_id = k.referenced_object_id
+                    WHERE C.TABLE_NAME='$tableName'""")
         val columns = ArrayList<IColumn>()
+
         while (res.next()) {
-            var column = Column(
+            var text = res.getString("foreign Key")
+            val column = Column(
                     name = res.getString("Column Name"),
                     type = res.getString("Data type"),
                     length = res.getInt("Max Length"),
                     precision = res.getInt("precision"),
                     isNull = res.getBoolean("is_nullable"),
-                    primaryKey = res.getBoolean("Primary Key")
+                    primaryKey = res.getBoolean("primary Key"),
+                    foreignKey = res.getString("foreign Key") ?: ""
             )
             columns.add(column)
         }
