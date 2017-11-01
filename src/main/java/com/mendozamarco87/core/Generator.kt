@@ -1,9 +1,7 @@
 package com.mendozamarco87.core
 
-import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.nio.file.StandardOpenOption
 
 /**
  * Created by mendoza on 26/06/2017.
@@ -35,8 +33,23 @@ class Generator(val path: String) {
 
         this.database!!.getTables().forEach {
             val content = this.programingLan!!.createScript(it)
-            val file = Paths.get("${this.path}/${it.name}.java")
-            Files.write(file, content.toByteArray(StandardCharsets.UTF_8), StandardOpenOption.CREATE)
+            this.programingLan!!.onSuccessCreateScript(it, content, this.path)
+//            val file = Paths.get("${this.path}/${it.name}.java")
+//            Files.write(file, content.toByteArray(StandardCharsets.UTF_8), StandardOpenOption.CREATE)
         }
+        this.programingLan!!.onCompleteGenerate(this.path)
+    }
+
+    fun generate(tables: Array<String>) {
+        val path = Paths.get(this.path)
+        if (!Files.exists(path))
+            Files.createDirectories(path)
+
+        tables.forEach {
+            val table = Table(name = it, columns = this.database!!.getColumns(it))
+            val content = this.programingLan!!.createScript(table)
+            this.programingLan!!.onSuccessCreateScript(table, content, this.path)
+        }
+        this.programingLan!!.onCompleteGenerate(this.path)
     }
 }

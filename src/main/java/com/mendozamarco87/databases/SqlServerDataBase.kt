@@ -50,7 +50,7 @@ class SqlServerDataBase(server: String, user: String, password: String, database
                         c.CHARACTER_MAXIMUM_LENGTH 'Max Length',
                         c.NUMERIC_PRECISION 'precision',
                         c.NUMERIC_SCALE 'scale' ,
-                        c.IS_NULLABLE 'is_nullable',
+                        (CHARINDEX('YES',c.IS_NULLABLE)) 'is_nullable',
                         (CHARINDEX('PK',U.CONSTRAINT_NAME))  as 'primary Key',
 						t.name  as 'foreign Key'
 

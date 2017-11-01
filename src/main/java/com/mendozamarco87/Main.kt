@@ -3,9 +3,9 @@ package com.mendozamarco87
 import com.mendozamarco87.core.Generator
 import com.mendozamarco87.databases.SqLiteDataBase
 import com.mendozamarco87.databases.SqlServerDataBase
+import com.mendozamarco87.planguages.AndroidGreenDao
+import com.mendozamarco87.planguages.CSharp
 import com.mendozamarco87.planguages.Java
-import java.nio.file.Files
-import java.nio.file.Paths
 
 /**
  * Created by mendoza on 25/06/2017.
@@ -13,53 +13,105 @@ import java.nio.file.Paths
 
 
 fun main(args: Array<String>) {
-    val pathGenerateFiles = "D:/marco.mendoza/generados/com/mendozamarco87/test"
-    val javaPackage = "com.mendozamarco87.test"
-    val path = Paths.get(pathGenerateFiles)
-    if (!Files.exists(path))
-        Files.createDirectories(path)
+//    generateFromSqlServerToAndroidGreenDao()
+//    generateFromSqlServerToCSharpSqliteEntityFramework()
+    generateFromSqlServerToCSharpMapper()
+}
 
-//    val database = SqlServerDataBase("PCI7R\\SQL2014", "dsoft2017", "123456", "BackOfficeNalVida")
-    val database = SqlServerDataBase("DIANA-PC", "sa", "12345678", "BackOfficeNalVida")
+fun generateFromSqlServerToCSharpSqliteEntityFramework() {
+    val tables = arrayOf("CategoriaActividad", "EstadoActividad", "EstadoOportunidad", "ExtensionCI", "Ciudad", "MotivoNoCierre",
+            "Producto", "Fuente", "TipoClasificacion", "Clasificacion", "Etapa", "EtapaEmbudo", "Oportunidad", "Actividad", "OportunidadEtapa",
+            "ActividadHistorico", "OportunidadClasificacion", "Parametro")
+    val db = SqlServerDataBase("PCI7R\\SQL2014", "dsoft2017", "123456", "BackOfficeNalVida")
+//    val db = SqlServerDataBase("DIANA-PC", "sa", "12345678", "BackOfficeNalVida")
 
-    val tables = arrayOf("CategoriaActividad", "EstadoOportunidad", "ExtensionCI", "Ciudad",
-            "Producto", "Fuente", "Oportunidad", "Actividad", "OportunidadEtapa")
-
+    var script = ""
     tables.forEach {
-        val table = it
-        val column = database.getColumns(table)
-        println("Entity $table = esquema.addEntity(\"D$table\");")
-        println("$table.setTableName(\"$table\");")
-        column.forEach {
-            var text = "$table.add${getTypeJava(it.type)}Property(\"${it.name}\").columnName(\"${it.name}\")${if (it.primaryKey) ".primaryKey()" else ""}"
-            if (it.foreignKey.isEmpty()) {
-                println("$text;")
+        val tableName = it
+        val columns = db.getColumns(tableName)
+        var content = """
+List<Data.$tableName> dLista$tableName= dbData.$tableName.ToList();
+foreach (var item in dLista$tableName)
+{
+    DataSqlite.$tableName model = new DataSqlite.$tableName();
+"""
+        columns.forEach {
+            var isNull = ""
+            if (it.isNull)
+                isNull = ".HasValue ?"
+
+
+            if (it.type == "datetime") {
+                content += "model.${it.name} = "
+                content += if (isNull.isEmpty()) "DateTimeToLong(item.${it.name})" else "item.${it.name}$isNull DateTimeToLong(item.${it.name}.Value) : null"
+            } else if (it.type == "bit") {
+                content += "model.${it.name} = item.${it.name}"
+                content += if (isNull.isEmpty()) "? 1 : 0" else "$isNull (item.${it.name}.Value? 1 : 0) : 0"
             } else {
-                val property = "$table${it.name}"
-                text = "Property $property = $text.getProperty();"
-                println(text)
-                println("$table.addToOne(${it.foreignKey}, $property);")
+                content += "model.${it.name} = item.${it.name}"
             }
+
+            content += ";\n"
         }
-        println()
+        println(content)
+        println("db.$tableName.Add(model);")
+        println("}")
+//        println("db.SaveChanges();")
     }
 }
 
-fun getTypeJava(type: String): String {
-    when (type) {
-        "bigint" -> return "Long"
-        "varchar" -> return "String"
-        "nvarchar" -> return "String"
-        "datetime" -> return "Date"
-        "image" -> return "ByteArray"
-        "int" -> return "Int"
-        "bit" -> return "Boolean"
+fun generateFromSqlServerToCSharpSqliteConnection() {
+    val tables = arrayOf("CategoriaActividad", "EstadoActividad", "EstadoOportunidad", "ExtensionCI", "Ciudad", "MotivoNoCierre",
+            "Producto", "Fuente", "TipoClasificacion", "Clasificacion", "Etapa", "EtapaEmbudo", "Oportunidad", "Actividad", "OportunidadEtapa")
+    val db = SqlServerDataBase("PCI7R\\SQL2014", "dsoft2017", "123456", "BackOfficeNalVida")
+//    val db = SqlServerDataBase("DIANA-PC", "sa", "12345678", "BackOfficeNalVida")
+
+    var script = ""
+    tables.forEach {
+        val tableName = it
+        val columns = db.getColumns(tableName)
+        var content = """
+List<Data.$tableName> dLista$tableName= db.$tableName.ToList();
+foreach (var item in dLista$tableName)
+{
+    cmd.CommandText = "Insert into $tableName Values("""
+        var parameters = ""
+        columns.forEach {
+            content += "@${it.name},"
+            parameters += "cmd.Parameters.Add(new SQLiteParameter(\"${it.name}\", item.${it.name}));\n"
+        }
+        println(content.substring(0, content.length - 1) + ")\";")
+        println(parameters)
+        println("cmd.ExecuteNonQuery();")
+        println("}")
     }
-    return "Default"
 }
 
+fun generateFromSqlServerToAndroidGreenDao() {
+    val pathGenerateFiles = "D:/marco.mendoza/workspace-kotlin/generator/src/main/java/com/mendozamarco87"
+    val javaPackage = "com.mendozamarco87"
+    val tables = arrayOf("Parametro")
+    val generator = Generator(pathGenerateFiles)
+    generator.apply {
+        from(SqlServerDataBase("PCI7R\\SQL2014", "dsoft2017", "123456", "BackOfficeNalVida"))
+        to(AndroidGreenDao(javaPackage))
+        generate(tables)
+    }
+}
 
-fun generateFromSqLite() {
+fun generateFromSqlServerToCSharpMapper(){
+    val pathGenerateFiles = "D:/marco.mendoza/workspace-kotlin/generator/src/main/java/com/mendozamarco87"
+    val namespace = "Logica"
+    val tables = arrayOf("TipoElementoSoftware","FuncionServicio")
+    val generator = Generator(pathGenerateFiles)
+    generator.apply {
+        from(SqlServerDataBase("172.21.15.103", "usr_desa", "des@rr0ll02013", "dbDatecPricing"))
+        to(CSharp(namespace))
+        generate(tables)
+    }
+}
+
+fun generateFromSqLiteToJava() {
     val pathDataBase = "D:/marco.mendoza/generados/PuntosAtencion.sqlite"
     val pathGenerateFiles = "D:/marco.mendoza/generados/com/mendozamarco87/test"
     val javaPackage = "com.mendozamarco87.test"

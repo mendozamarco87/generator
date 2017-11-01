@@ -11,6 +11,13 @@ import java.nio.file.Paths
  * Created by mendoza on 26/06/2017.
  */
 class Java(val javaPackage: String) : IProgramingLan {
+    override fun onCompleteGenerate(path: String) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun onSuccessCreateScript(table: ITable, script: String, path: String) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 
     var template: String = ""
 

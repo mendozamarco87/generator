@@ -28,6 +28,8 @@ interface IColumn {
 
 interface IProgramingLan {
     fun createScript(table: ITable):String
+    fun onSuccessCreateScript(table: ITable, script: String, path: String)
+    fun onCompleteGenerate(path: String)
 }
 
 interface IDatabaseToProgramingLan {
