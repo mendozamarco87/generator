@@ -102,7 +102,7 @@ fun generateFromSqlServerToAndroidGreenDao() {
 fun generateFromSqlServerToCSharpMapper(){
     val pathGenerateFiles = "D:/marco.mendoza/workspace-kotlin/generator/src/main/java/com/mendozamarco87"
     val namespace = "Logica"
-    val tables = arrayOf("TipoElementoSoftware","FuncionServicio")
+    val tables = arrayOf("InsumoCompetencia")
     val generator = Generator(pathGenerateFiles)
     generator.apply {
         from(SqlServerDataBase("172.21.15.103", "usr_desa", "des@rr0ll02013", "dbDatecPricing"))
