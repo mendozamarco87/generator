@@ -32,8 +32,8 @@ class Generator(val path: String) {
             Files.createDirectories(path)
 
         this.database!!.getTables().forEach {
-            val content = this.programingLan!!.createScript(it)
-            this.programingLan!!.onSuccessCreateScript(it, content, this.path)
+            val script = this.programingLan!!.createScript(it)
+            this.programingLan!!.onSuccessCreateScript(it, script, this.path)
 //            val file = Paths.get("${this.path}/${it.name}.java")
 //            Files.write(file, content.toByteArray(StandardCharsets.UTF_8), StandardOpenOption.CREATE)
         }
@@ -47,8 +47,8 @@ class Generator(val path: String) {
 
         tables.forEach {
             val table = Table(name = it, columns = this.database!!.getColumns(it))
-            val content = this.programingLan!!.createScript(table)
-            this.programingLan!!.onSuccessCreateScript(table, content, this.path)
+            val script = this.programingLan!!.createScript(table)
+            this.programingLan!!.onSuccessCreateScript(table, script, this.path)
         }
         this.programingLan!!.onCompleteGenerate(this.path)
     }

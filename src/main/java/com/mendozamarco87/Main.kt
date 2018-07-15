@@ -1,11 +1,10 @@
 package com.mendozamarco87
 
 import com.mendozamarco87.core.Generator
+import com.mendozamarco87.databases.PostgreSQLDataBase
 import com.mendozamarco87.databases.SqLiteDataBase
 import com.mendozamarco87.databases.SqlServerDataBase
-import com.mendozamarco87.planguages.AndroidGreenDao
-import com.mendozamarco87.planguages.CSharp
-import com.mendozamarco87.planguages.Java
+import com.mendozamarco87.planguages.*
 
 /**
  * Created by mendoza on 25/06/2017.
@@ -15,7 +14,45 @@ import com.mendozamarco87.planguages.Java
 fun main(args: Array<String>) {
 //    generateFromSqlServerToAndroidGreenDao()
 //    generateFromSqlServerToCSharpSqliteEntityFramework()
-    generateFromSqlServerToCSharpMapper()
+//    generateFromSqlServerToCSharpMapper()
+    generateFromPostgresqlToCSharp()
+}
+
+fun generateFromPostgresqlToCSharp() {
+    val pathProject = "C:/Users/mendo/Documents/Workspace/NetCore/bill-system/Qubit.BillSystem"
+    val namespace = "Qubit.BillSystem"
+    val table = "Activity"
+    val tables = arrayOf(table)
+    var generator = Generator("$pathProject/$namespace.BackOffice/Controllers")
+    generator.apply {
+        from(PostgreSQLDataBase("localhost:5432","postgres", "root", "dbBillSystem"))
+        to(CSharpController(namespace + ".BackOffice.Controllers"))
+        generate(tables)
+    }
+    generator = Generator("$pathProject/$namespace.BackOffice/Views/$table")
+    generator.apply {
+        from(PostgreSQLDataBase("localhost:5432","postgres", "root", "dbBillSystem"))
+        to(CSHtmlViewIndex(namespace + ".Entity"))
+        generate(tables)
+    }
+    generator = Generator("$pathProject/$namespace.BackOffice/Views/$table")
+    generator.apply {
+        from(PostgreSQLDataBase("localhost:5432","postgres", "root", "dbBillSystem"))
+        to(CSHtmlViewNew(namespace + ".Entity"))
+        generate(tables)
+    }
+    generator = Generator("$pathProject/$namespace.BusinessLogic")
+    generator.apply {
+        from(PostgreSQLDataBase("localhost:5432","postgres", "root", "dbBillSystem"))
+        to(CSharpBLogic(namespace + ".BusinessLogic"))
+        generate(tables)
+    }
+    generator = Generator("$pathProject/$namespace.Entity")
+    generator.apply {
+        from(PostgreSQLDataBase("localhost:5432","postgres", "root", "dbBillSystem"))
+        to(CSharpEntity(namespace + ".Entity"))
+        generate(tables)
+    }
 }
 
 fun generateFromSqlServerToCSharpSqliteEntityFramework() {
